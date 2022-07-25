@@ -1,0 +1,27 @@
+{
+  "name": "project5-shopping-card",
+  "version": "1.0.0",
+  "description": "shopping card",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArpitMaheshwari47/Project5-Shopping-Card.git"
+  },
+  "author": "arpit-akash-sagar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArpitMaheshwari47/Project5-Shopping-Card/issues"
+  },
+  "homepage": "https://github.com/ArpitMaheshwari47/Project5-Shopping-Card#readme",
+  "dependencies": {
+    "body": "^5.1.0",
+    "express": "^4.18.1",
+    "mongoose": "^6.4.6",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^2.0.19",
+    "parser": "^0.1.4"
+  }
+}

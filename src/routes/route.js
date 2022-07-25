@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const bookController = require("../controllers/bookController");
+const validation = require("../validator/validation");
 
 
 
@@ -13,52 +13,52 @@ const bookController = require("../controllers/bookController");
 // .......................................... User APIs ...................................//
 router.post(
   "/register",
-  validation.validationForUser,
+  // validation.validationForUser,
   userController.registerUser
 );
 
-router.post("/login", validation.validationForLogin, userController.loginUser);
+// router.post("/login", validation.validationForLogin, userController.loginUser);
 
-// .......................................... Book APIs ...................................//
-router.post(
-  "/books",
-  middlewares.Authentication,
-  validation.validationForBook,
-  bookController.registerBook
-);
+// // .......................................... Book APIs ...................................//
+// router.post(
+//   "/books",
+//   middlewares.Authentication,
+//   validation.validationForBook,
+//   bookController.registerBook
+// );
 
-router.get("/books", middlewares.Authentication, bookController.getBook);
+// router.get("/books", middlewares.Authentication, bookController.getBook);
 
-router.get(
-  "/books/:bookId",
-  middlewares.Authentication,
-  bookController.getBooksByParams
-);
-router.put(
-  "/books/:bookId",
-  middlewares.Authentication,
-  validation.validationForUpdatedBook,
-  bookController.updateBooks
-);
+// router.get(
+//   "/books/:bookId",
+//   middlewares.Authentication,
+//   bookController.getBooksByParams
+// );
+// router.put(
+//   "/books/:bookId",
+//   middlewares.Authentication,
+//   validation.validationForUpdatedBook,
+//   bookController.updateBooks
+// );
 
-router.delete(
-  "/books/:bookId",
-  middlewares.Authentication,
-  bookController.deleteBook
-);
+// router.delete(
+//   "/books/:bookId",
+//   middlewares.Authentication,
+//   bookController.deleteBook
+// );
 
-// .......................................... Review APIs ...................................//
-router.post(
-  "/books/:bookId/review",
-  validation.validationForReview,
-  reviewController.createReviews
-);
+// // .......................................... Review APIs ...................................//
+// router.post(
+//   "/books/:bookId/review",
+//   validation.validationForReview,
+//   reviewController.createReviews
+// );
 
-router.put(
-  "/books/:bookId/review/:reviewId",
-  validation.validationUpdateReview,
-  reviewController.updateReviews
-);
+// router.put(
+//   "/books/:bookId/review/:reviewId",
+//   validation.validationUpdateReview,
+//   reviewController.updateReviews
+// );
 
-router.delete("/books/:bookId/review/:reviewId", reviewController.deleteReview);
+// router.delete("/books/:bookId/review/:reviewId", reviewController.deleteReview);
 module.exports = router;
