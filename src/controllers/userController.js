@@ -5,6 +5,7 @@ const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
 const { isValidObjectId } = require('mongoose')
 const aws = require("aws-sdk")
+// const { ConfigurationServicePlaceholders } = require("aws-sdk/lib/config_service_placeholders")
 // const validator = require("../validator/validation")
 // const aws1 = require("../aws/aws")
 // const { isValidObjectId } = require('mongoose')
@@ -187,6 +188,7 @@ const loginUser = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Please Enter password" })
     }
     const hash = await userModel.findOne({ email: email }).select({ _id: 1, password: 1 })
+    console.log(hash)
     if (hash) {
       const existUser = bcrypt.compare(password, hash.password)
       if (!existUser) {
@@ -247,65 +249,65 @@ const getUser = async (req, res) => {
 
 // *******************************************UPDATE USER API**************************************************
 
-const updateUser = async function (req, res) {
-  try {
+// const updateUser = async function (req, res) {
+//   try {
 
-    let usersId = req.params.userId
+//     let usersId = req.params.userId
 
-    if (usersId && !isValidObjectId(usersId))
-      return res
-        .status(404)
-        .send({ status: false, message: "userId is not valid" });
+//     if (usersId && !isValidObjectId(usersId))
+//       return res
+//         .status(404)
+//         .send({ status: false, message: "userId is not valid" });
 
-    let data = req.body;
-    const {  } = data;
+//     let data = req.body;
+//     const {  } = data;
 
-    let bookDetails = await bookModel.findOne({
-      _id: bookId,
-      isDeleted: false,
-    });
-    if (!bookDetails)
-      return res
-        .status(404)
-        .send({ status: false, msg: "Book does not exists" });
+//     let bookDetails = await bookModel.findOne({
+//       _id: bookId,
+//       isDeleted: false,
+//     });
+//     if (!bookDetails)
+//       return res
+//         .status(404)
+//         .send({ status: false, msg: "Book does not exists" });
 
-    //authorization
-    let book = await bookModel.findById({ _id: bookId });
-    let userId = book.userId.toString();
+//     //authorization
+//     let book = await bookModel.findById({ _id: bookId });
+//     let userId = book.userId.toString();
 
-    if (req.headers["userId"] !== userId)
-      return res
-        .status(403)
-        .send({ status: false, msg: "You are not authorized...." });
+//     if (req.headers["userId"] !== userId)
+//       return res
+//         .status(403)
+//         .send({ status: false, msg: "You are not authorized...." });
 
-    if (title) bookDetails.title = title;
-    const validTitle = await bookModel.findOne({ title });
-    if (validTitle)
-      return res
-        .status(400)
-        .send({ status: false, message: "Title is already present" });
+//     if (title) bookDetails.title = title;
+//     const validTitle = await bookModel.findOne({ title });
+//     if (validTitle)
+//       return res
+//         .status(400)
+//         .send({ status: false, message: "Title is already present" });
 
-    if (excerpt) bookDetails.excerpt = excerpt;
-    if (releasedAt) bookDetails.releasedAt = releasedAt;
-    if (ISBN) bookDetails.ISBN = ISBN;
-    const validISBN = await bookModel.findOne({ ISBN });
-    if (validISBN)
-      return res
-        .status(400)
-        .send({ status: false, message: "ISBN is already present" });
+//     if (excerpt) bookDetails.excerpt = excerpt;
+//     if (releasedAt) bookDetails.releasedAt = releasedAt;
+//     if (ISBN) bookDetails.ISBN = ISBN;
+//     const validISBN = await bookModel.findOne({ ISBN });
+//     if (validISBN)
+//       return res
+//         .status(400)
+//         .send({ status: false, message: "ISBN is already present" });
 
-    bookDetails.save();
+//     bookDetails.save();
 
-    return res
-      .status(200)
-      .send({ status: true, message: "Success", data: bookDetails });
-  } catch (error) {
-    return res.status(500).send({ err: error.message });
-  }
-};
+//     return res
+//       .status(200)
+//       .send({ status: true, message: "Success", data: bookDetails });
+//   } catch (error) {
+//     return res.status(500).send({ err: error.message });
+//   }
+// };
 
 
-module.exports = { registerUser, loginUser, getUser,updateUser }
+module.exports = { registerUser, loginUser, getUser }
 
 
 
