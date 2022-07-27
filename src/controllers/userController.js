@@ -1,184 +1,138 @@
-
 const userModel = require("../models/userModel")
 const bcrypt = require("bcrypt")
 const mongoose = require("mongoose")
 const jwt = require("jsonwebtoken")
+const pinValidator = require('pincode-validator')
 const { isValidObjectId } = require('mongoose')
-const Authentication =require("../middlewares/auth")
-const aws = require("aws-sdk")
-// const { ConfigurationServicePlaceholders } = require("aws-sdk/lib/config_service_placeholders")
-const validator = require("../validator/validation")
-// const aws1 = require("../aws/aws")
-// const { isValidObjectId } = require('mongoose')
- 
- 
- 
-aws.config.update({
-  accessKeyId: "AKIAY3L35MCRVFM24Q7U",
-  secretAccessKey: "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",
-  region: "ap-south-1"
-})
- 
- 
-let uploadFile = async (file) => {
-  return new Promise(function (resolve, reject) {
-    // this function will upload file to aws and return the link
-    let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
- 
-    var uploadParams = {
-      ACL: "public-read",
-      Bucket: "classroom-training-bucket",  //HERE
-      Key: "project5/" + file.originalname, //HERE
-      Body: file.buffer
-    }
-    s3.upload(uploadParams, function (err, data) {
-      if (err) {
-        return reject({ "error": err })
-      }
-      console.log(data)
-      console.log("file uploaded succesfully")
-      return resolve(data.Location)
-    })
-  })
-}
- 
- 
- 
-const isValidObject = function (value) {
-  if (Object.keys(value).length === 0) return false;
-  else return true;
-};
- 
-const isValid = function (value) {
-  if (typeof value === 'undefined' || value === null) return false
-  if (typeof value === 'string' && value.trim().length === 0) return false
-  return true;
-}
 
- 
- 
-//Creating User
+const { uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex, emailRegex, phoneRegex, passRegex } = require("../validator/validation")
+
+//*****************************************************REGISTER USER****************************************************************** */
+
 const registerUser = async (req, res) => {
   try {
     let data = req.body
-    let file = req.files
-    let { fname, lname, phone, email, password, address } = data
- 
-    //validation for body
-    if (!isValidObject(data)) {
-      return res.status(400).send({ status: false, msg: "Provide the data of User " })
+    if (Object.keys(data).length === 0) return res.status(400).send({ status: false, message: "Provide the data in body." })
+    let { fname, lname, email, phone, password, address } = data
+    const files = req.files
+    if (!isValidFiles(files)) return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
+    if (!isValid(fname))
+      return res.status(400).send({ status: false, message: "Please enter the user name." })
+    if (!nameRegex.test(fname))
+      return res.status(400).send({ status: false, message: "name should contain alphabets only." })
+    if (!isValid(lname))
+      return res.status(400).send({ status: false, message: "Please enter the user last name." })
+    if (!nameRegex.test(lname))
+      return res.status(400).send({ status: false, message: "name should contain alphabets only." })
+    if (!isValid(email))
+      return res.status(400).send({ status: false, message: "Please enter the email." })
+    if (!emailRegex.test(email))
+      return res.status(400).send({ status: false, message: "Please enter a valid emailId." })
+    let getEmail = await userModel.findOne({ email: email });
+    if (getEmail) {
+      return res.status(400).send({ status: false, message: "Email is already in use, please enter a new one." });
     }
- 
-    //validation for fname and lastname
-    if (!isValid(fname)) {
-      return res.status(400).send({ status: false, msg: "Provide the First Name " })
+    if (!isValid(phone))
+      return res.status(400).send({ status: false, message: "Please enter the phone number." })
+    if (!phoneRegex.test(phone))
+      return res.status(400).send({ status: false, message: "Enter the phone number in valid Indian format." })
+    let getPhone = await userModel.findOne({ phone: phone });
+    if (getPhone) {
+      return res.status(400).send({ status: false, message: "Phone number is already in use, please enter a new one." });
     }
-    if (!(nameRegex(fname))) {
-      return res.status(400).send({ status: false, msg: "Enter valid  fname" })
-    }
- 
- 
-    if (!isValid(lname)) {
-      return res.status(400).send({ status: false, msg: "Provide the last Name " })
-    }
-    if (!(/^[a-zA-Z ]{2,30}$/.test(lname))) {
-      return res.status(400).send({ status: false, msg: "Enter valid  lname" })
-    }
- 
- 
-    //validation for phone
-    if (!isValid(phone)) {
-      return res.status(400).send({ status: false, msg: "Provide the Phone Number " })
-    }
-    if (!(/^[0-9]{10}$/.test(phone))) {
-      return res.status(400).send({ status: false, msg: " phone number should have 10 digits only" });
-    }
-    let PhoneCheck = await userModel.findOne({ phone: phone.trim() })
-    if (PhoneCheck) { return res.status(400).send({ status: false, msg: "this phone is already present" }) }
- 
-    //validation for email
-    if (!isValid(email)) {
-      return res.status(400).send({ status: false, msg: "Provide the EmailId " })
-    }
-    if (!/^[a-z]{1}[a-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/.test(email)) {
-      return res.status(400).send({ status: false, msg: "Provide the Valid EmailId " })
-    }
-    let checkmail = await userModel.findOne({ email: email })
-    if (checkmail) { return res.status(400).send({ status: false, msg: "this email is already present" }) }
- 
-    //validation for password
-    if (!isValid(password)) {
-      return res.status(400).send({ status: false, msg: "Provide the Password " })
-    }
-    // if (typeof password !== "string" || password.trim().length === 0) { return res.status(400).send({ status: false, msg: "enter valid password" }) };
-    else if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,15}$/.test(password)) { return res.status(400).send({ status: false, msg: "Password Length must be btwn 8-15 chars only" }) }
- 
+    if (!isValid(password))
+      return res.status(400).send({ status: false, message: "Please enter the password." })
+    if (!passRegex.test(password))
+      return res.status(400).send({ status: false, message: "Password length should be alphanumeric with 8-15 characters, should contain at least one lowercase, one uppercase and one special character." })
     const saltRounds = 10;
     const encryptedPassword = await bcrypt.hash(password, saltRounds)
+    console.log(encryptedPassword)
     data['password'] = encryptedPassword
- 
-    if (!isValid(password)) return res.status(400).send({ status: false, Message: "Please provide your password" })
-    //validation for address
 
-   
-    if (file && file.length > 0) {
-      let url = await uploadFile(file[0])
-      data['profileImage'] = url
+    if (data.address.shipping) {
+      if (!isValid(data.address.shipping.street))
+        return res.status(400).send({ status: false, message: "Enter the street in the address(shipping)." })
+      if (!isValid(data.address.shipping.city))
+        return res.status(400).send({ status: false, message: "Enter the city in the address(shipping)." })
+      if (!nameRegex.test(data.address.shipping.city))
+        return res.status(400).send({ status: false, message: "city name should contain alphabets only(shipping)." })
+      if (!isValid(data.address.shipping.pincode))
+        return res.status(400).send({ status: false, message: "Enter the pincode in the address(shipping)." })
+      let pinValidated = pinValidator.validate(data.address.shipping.pincode)
+      if (!pinValidated) return res.status(400).send({ status: false, message: "Please enter a valid pincode." })
     }
-    else {
-      return res.status(400).send({ status: false, msg: "Please Provide ProfileImage" })
+    if (data.address.billing) {
+      if (!isValid(data.address.billing.street))
+        return res.status(400).send({ status: false, message: "Enter the street in the address(billing)." })
+      if (!isValid(data.address.billing.city))
+        return res.status(400).send({ status: false, message: "Enter the city in the address(billing)." })
+      if (!nameRegex.test(data.address.billing.city))
+        return res.status(400).send({ status: false, message: "city name should contain alphabets only(billing)." })
+      if (!isValid(data.address.billing.pincode))
+        return res.status(400).send({ status: false, message: "Enter the pincode in the address(billing)." })
+      let pinValidated = pinValidator.validate(data.address.billing.pincode)
+      if (!pinValidated) return res.status(400).send({ status: false, message: "Please enter a valid pincode." })
     }
 
+    const profilePicture = await uploadFile(files[0])
+    const userData = {
+      fname: fname,
+      lname: lname,
+      profileImage: profilePicture,
+      email: email,
+      phone: phone,
+      password: encryptedPassword,
+      address: address, 
+    }
 
-    const created = await userModel.create(data)
-    return res.status(201).send({ status: true, msg: "User Created Succefully", data: created })
+    const createUser = await userModel.create(userData)
 
-  }
-  catch (err) {
-    return res.status(500).send({ status: false, Error: err.message })
+    res.status(201).send({
+      status: true, message: `User registered successfully`, data: createUser,
+    })
+  } catch (error) {
+    res.status(500).send({ status: false, message: error.message })
   }
 }
 
+
+//********************************************LOGIN API****************************************************************************** */
 const loginUser = async function (req, res) {
   try {
 
     const data = req.body
     const { email, password } = data
-    if (Object.keys(data).length == 0) {
-      return res.status(400).send({ status: false, msg: "Please Enter email and Password" })
-
-    }
-    if (!email) {
-      return res.status(400).send({ status: false, msg: "Please Enter email" })
-    }
-    if (!password) {
-      return res.status(400).send({ status: false, msg: "Please Enter password" })
-    }
-    const hash = await userModel.findOne({ email: email }).select({ _id: 1, password: 1 })
-    console.log(hash)
-    if (hash) {
-      const existUser = bcrypt.compare(password, hash.password)
-      if (!existUser) {
-        return res.status(404).send({ status: false, msg: "Invalid User" })
-      }
-    }
-    else {
-      return res.status(404).send({ status: false, msg: "No user With this email" })
+    if (!isValidRequestBody(data)) {
+      return res.status(400).send({ status: false, message: "Please enter login credentials" });
     }
 
+    if (!isValid(email) ) {
+      return res.status(400).send({ status: false, message: "Email is requird and it should be a valid email address" }); }
+    if (!emailRegex.test(email))
+    return res.status(400).send({ status: false, message: "Please enter a valid emailId." })
+    if (!isValid(password) ) {
+      return res.status(400).send({ status: false, message: "Password  should be Valid min 8 and max 15 length" }); }
+    if (!passRegex.test(password))
+    return res.status(400).send({ status: false, message: "Password length should be alphanumeric with 8-15 characters, should contain at least one lowercase, one uppercase and one special character." })
+    const user = await userModel.findOne({ email: email });
+    if (!user) {
+      return res.status(404).send({ status: false, msg: "Invalid User" })}
+    const decrypPassword = user.password
+    const pass = await bcrypt.compare(password, decrypPassword)
+    if (!pass) {
+      return res.status(400).send({ status: false, message: "Password Incorrect" })
+    }
 
     // Creating Token Here
 
-    const token = jwt.sign(
-      { userId: hash._id },
-      'Project5',
-      { expiresIn: "24h" })
+    const token = jwt.sign({ userId: user._id }, 'project5', { expiresIn: "24h" })
 
-    res.setHeader("x-api-key", token)
     let obj = {
-      userId: hash._id,
+      userId: user._id,
       token: token
     }
+    res.setHeader('Authorization', 'Bearer ' + token);
+
     return res.status(201).send({ status: true, msg: "User LoggedIn Succesfully", data: obj })
 
   }
@@ -186,10 +140,7 @@ const loginUser = async function (req, res) {
     return res.status(500).send({ status: false, msg: err.message })
   }
 }
-
-
-//********************************************GET USER API*******************************************************
-
+ 
 const getUser = async (req, res) => {
   try {
 
@@ -198,7 +149,7 @@ const getUser = async (req, res) => {
       return res.status(400).send({ status: false, msg: "Provide UserID" })
     }
 
-    if (!isValidObjectId(userId)) {
+    if (!isValidRequestBody(userId)) {
       return res.status(400).send({ stauts: false, msg: "Invalid User Id" })
     }
     const data = await userModel.find({ _id: userId })
@@ -214,74 +165,39 @@ const getUser = async (req, res) => {
 
 }
 
-// *******************************************UPDATE USER API**************************************************
 
-// const updateUser = async function (req, res) {
-//   try {
+const updateUserProfile = async function (req,res) {
+  try{
+      const userId= req.params.userId;
+      const data= req.body
+      const file = req.files
+      if(!isValidObjectId(userId)){
+          return res.status(400).send({stauts:false,msg:"Invalid User Id"})
+      }
+      const isUserPresent =await userModel.findById(userId)
+      if(!isUserPresent){
+          return res.status(404).send({status:false,msg:"No User Found"})
+      }
+      if (userId != req.userId) {
+          return res.status(403).send({ status: false, message: "unauthorized access!" });
+      }
+      if (!isValidRequestBody(data)) {
+          return res.status(400).send({ status: false, message: "Please provide data for update" });
+      }
+      let{fname} = data
+      
+      if(file && file.length>0){
+          let  url = await uploadFile( file[0] )
+          data['profileImage'] = url
+      }
+     const updateData= await userModel.findByIdAndUpdate({_id:userId},{$set:{fname:fname}},{new:true})
+     return res.status(201).send({ status: true, message: "suer profile update", data:updateData });
+    }catch(err){
+        return res.status(500).send({status:false,msg:err.message})
+  
+    }
+  }
 
-//     let usersId = req.params.userId
 
-//     if (usersId && !isValidObjectId(usersId))
-//       return res
-//         .status(404)
-//         .send({ status: false, message: "userId is not valid" });
 
-//     let data = req.body;
-//     const {  } = data;
-
-//     let bookDetails = await bookModel.findOne({
-//       _id: bookId,
-//       isDeleted: false,
-//     });
-//     if (!bookDetails)
-//       return res
-//         .status(404)
-//         .send({ status: false, msg: "Book does not exists" });
-
-//     //authorization
-//     let book = await bookModel.findById({ _id: bookId });
-//     let userId = book.userId.toString();
-
-//     if (req.headers["userId"] !== userId)
-//       return res
-//         .status(403)
-//         .send({ status: false, msg: "You are not authorized...." });
-
-//     if (title) bookDetails.title = title;
-//     const validTitle = await bookModel.findOne({ title });
-//     if (validTitle)
-//       return res
-//         .status(400)
-//         .send({ status: false, message: "Title is already present" });
-
-//     if (excerpt) bookDetails.excerpt = excerpt;
-//     if (releasedAt) bookDetails.releasedAt = releasedAt;
-//     if (ISBN) bookDetails.ISBN = ISBN;
-//     const validISBN = await bookModel.findOne({ ISBN });
-//     if (validISBN)
-//       return res
-//         .status(400)
-//         .send({ status: false, message: "ISBN is already present" });
-
-//     bookDetails.save();
-
-//     return res
-//       .status(200)
-//       .send({ status: true, message: "Success", data: bookDetails });
-//   } catch (error) {
-//     return res.status(500).send({ err: error.message });
-//   }
-// };
-
- 
-module.exports = { registerUser, loginUser, getUser }
-    
- 
-//yigesh bek
- 
- 
- 
-
- 
- 
- 
+module.exports = { registerUser, loginUser, getUser, updateUserProfile}

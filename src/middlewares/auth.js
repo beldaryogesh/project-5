@@ -1,28 +1,29 @@
-
-const jwt = require("jsonwebtoken");
-
-const Authentication = function (req, res, next) {
+const jwt = require('jsonwebtoken')
+const Authentication = async function (req, res, next) {
   try {
-    let token = req.headers["x-api-key"] || req.headers["x-Api-key"];
-    if (!token)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Token must be present" });
 
-    jwt.verify(token, "project5", (error, response) => {
-      if (error) {
-        const msg =
-          error.message === "jwt expired"
-            ? "Token is expired"
-            : "Token is invalid";
-        return res.status(401).send({ status: false, msg });
-      }
-      next();
-      // req.headers["userId"] = response.userId;
-    });
-  } catch (err) {
-    return res.status(500).send({ status: false, msg: err.message });
+    let tokenWithBearer = req.headers["authorization"];
+    console.log(tokenWithBearer);
+    if (!tokenWithBearer) {
+      return res.status(400).send({ status: false, msg: "token not found" })
+    }
+    let tokenArray = tokenWithBearer.split(" ");
+    console.log(tokenArray);
+
+    let token = tokenArray[1];
+    console.log(token);
+
+
+    let decodedtoken = jwt.verify(token, "project5")
+    if (!decodedtoken) {
+      return res.status(401).send({ status: false, msg: "invalid token" })
+    }
+    req.userId = decodedtoken.userId
+    next()
   }
-};
+  catch (err) {
+    return res.status(500).send({ status: false, msg: err.message })
+  }
+}
 
-module.exports = { Authentication };
+module.exports = { Authentication }
