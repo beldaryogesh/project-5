@@ -1,6 +1,6 @@
 const productModel = require("../models/productModel")
 const mongoose = require("mongoose")
-
+const { isValidObjectId } = require('mongoose')
 const { uploadFile, isValid, isValidFiles, isValidRequestBody, nameRegex, emailRegex, phoneRegex,numRegex, passRegex, } = require("../validator/validation")
 
 
@@ -61,9 +61,17 @@ const createProduct = async function (req, res) {
         if (availableSizes.length<1) {
             return res.status(400).send({ status: false, msg: "please enter size of product" })
         }
-        if (["S", "XS","M","X", "L","XXL", "XL"].indexOf(availableSizes) == -1){
-            return res.status(400).send({status: false, msg: "Enter a valid size S or XS or M or X or L or XXL or XL ",});
+        sizeArr=availableSizes.replace(/\s+/g, "").split(",")
+        let arr = ["S", "XS","M","X", "L","XXL", "XL"]
+        let flag
+        for(let i=0; i<sizeArr.length; i++){
+               flag=  arr.includes(sizeArr[i])
+        }
+        if (!flag){
+            return res.status(400).send({status: false, data: "Enter a valid size S or XS or M or X or L or XXL or XL ",});
            }
+        data['availableSizes'] = sizeArr
+
 
            if (bodyFromReq.hasOwnProperty("installments"))
            if (!isValid(installments)) return res.status(400).send({ status: false, Message: "Please provide installments"})
@@ -71,10 +79,6 @@ const createProduct = async function (req, res) {
          if(!numRegex.test(installments)){
             return res.status(400).send({ status: false, msg: "please provide installement only numercial value" })
         }
-        
-        
-
-      
 
         let url = await uploadFile(files[0])
         data['productImage'] = url
@@ -89,17 +93,28 @@ const createProduct = async function (req, res) {
 }
 
 
-const getProduct = async function (req,res){
 
-    let body = req.body
-    // const {}
-    // const {isDeleted:false} = data
 
+
+
+
+const getProductId = async function (req, res) {
+    try {
+        let productId = req.params.productId
+        if (!productId) return res.status(400).send({ status: false, message: "Please provide the productId in path params." })
+        if (!isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please provide a valid productId." })
+
+        const productDetails = await productModel.findById(productId)
+
+        if (!productDetails) return res.status(404).send({ status: false, message: "No such product found in the database." })
+        if (productDetails.isDeleted === true) return res.status(400).send({ status: false, message: "This productDetails has already been deleted." })
+        return res.status(200).send({ status: true, message: "Success", data: productDetails })
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 
 
 
 
-
-
-module.exports = { createProduct,getProduct }
+module.exports = { createProduct,getProduct,getProductId }

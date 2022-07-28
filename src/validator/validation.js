@@ -55,4 +55,5 @@ const isValid = function (value) {
  let passRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
  let numRegex = /^[0-9]*$/
 
+
 module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex }
