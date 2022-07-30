@@ -14,8 +14,8 @@ let uploadFile = async (file) => {
 
     var uploadParams = {
       ACL: "public-read",
-      Bucket: "classroom-training-bucket",  //HERE
-      Key: "project5/" + file.originalname, //HERE 
+      Bucket: "classroom-training-bucket", 
+      Key: "project5/" + file.originalname, 
       Body: file.buffer
     }
     s3.upload(uploadParams, function (err, data) {
@@ -50,6 +50,8 @@ let emailRegex = /^[a-z]{1}[a-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/
 let phoneRegex = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
 let passRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
 let numRegex = /^[0-9]*$/
+ 
+
 
 module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex }
 
