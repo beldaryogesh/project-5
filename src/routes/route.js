@@ -16,6 +16,7 @@ router.put('/user/:userId',middleware.Authentication, userController.updateUserP
 
 router.post( "/products",ProductController.createProduct);
 
+
 router.get( "/products",ProductController.getProductByQuery);
 
 router.get( "/products/:productId",ProductController.getProductId);
@@ -23,6 +24,8 @@ router.get( "/products/:productId",ProductController.getProductId);
 router.put('/products/:productId', ProductController.updateProduct)
 
 router.delete('/products/:productId', ProductController.deleteProductById)
+
+
 
 module.exports = router;
 
