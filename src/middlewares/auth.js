@@ -1,17 +1,15 @@
 const jwt = require('jsonwebtoken')
+const mongoose = require("mongoose")
 const Authentication = async function (req, res, next) {
   try {
 
     let tokenWithBearer = req.headers["authorization"];
-    console.log(tokenWithBearer);
     if (!tokenWithBearer) {
       return res.status(400).send({ status: false, msg: "token not found" })
     }
     let tokenArray = tokenWithBearer.split(" ");
-    console.log(tokenArray);
 
     let token = tokenArray[1];
-    console.log(token);
 
 
     let decodedtoken = jwt.verify(token, "project5")
