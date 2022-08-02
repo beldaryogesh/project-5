@@ -24,7 +24,7 @@ router.delete('/products/:productId', ProductController.deleteProductById)
 
 
 // .......................................... Cart APIs ...................................//
-router.post( "/users/:userId",cartController.createCart);
+router.post( "/users/:userId",middleware.Authentication,cartController.createCart);
 
 
 module.exports = router;
