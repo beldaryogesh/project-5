@@ -245,54 +245,66 @@ const updateUserProfile = async function (req, res) {
             }
             add.shipping.street = objAddress.shipping.street
           }
+
           if (objAddress.shipping.city) {
             if (!isValid(objAddress.shipping.city)) {
-              return res.status(400).send({ status: false, Message: "Please provide city and city name in shipping address" })
+              return res.status(400).send({ status: false, Message: "Please provide city name in shipping address" })
             }
-            if (!nameRegex.test(objAddress.shipping.city)) {
+            if (!(/^[a-zA-Z ]{2,30}$/.test(objAddress.shipping.city))) {
               return res.status(400).send({ status: false, msg: "Enter valid  city name not a number" })
             }
             add.shipping.city = objAddress.shipping.city
+
           }
+
           if (objAddress.shipping.pincode) {
-            if (!isValid(objAddress.shipping.pincode)) {
-              return res.status(400).send({ status: false, Message: "Please provide pincode in shipping address" })
-            }
-            let pinValidated = pinValidator.validate(objAddress.shipping.pincode)
-            if (!pinValidated) return res.status(400).send({ status: false, message: "Please enter a valid pincode in shipping." })
-            add.shipping.pincode = objAddress.shipping.pincode
+            // if (!isvalidPincode(objAddress.shipping.pincode)) {
+            //   return res.status(400).send({ status: false, Message: "Please provide pincode in shipping address" })
+            // }
+            // add.shipping.pincode = objAddress.shipping.pincode
+
           }
+
+
         }
+
         if (objAddress.billing) {
+
           if (objAddress.billing.street) {
             if (!isValid(objAddress.billing.street)) {
               return res.status(400).send({ status: false, Message: "Please provide street name in billing address" })
             }
             add.billing.street = objAddress.billing.street
+
           }
+
           if (objAddress.billing.city) {
             if (!isValid(objAddress.billing.city)) {
               return res.status(400).send({ status: false, Message: "Please provide city name in billing address" })
             }
-            if (!nameRegex.test(objAddress.billing.city)) {
+            if (!(/^[a-zA-Z ]{2,30}$/.test(objAddress.billing.city))) {
               return res.status(400).send({ status: false, msg: "Enter valid  city name not a number" })
             }
             add.billing.city = objAddress.billing.city
+
           }
+
           if (objAddress.billing.pincode) {
-            if (!isValid(objAddress.billing.pincode)) {
+            if (!isvalidPincode(objAddress.billing.pincode)) {
               return res.status(400).send({ status: false, Message: "Please provide pincode in billing address" })
             }
-            let pinValidated = pinValidator.validate(objAddress.billing.pincode)
-            if (!pinValidated) return res.status(400).send({ status: false, message: "Please enter a valid pincode in billing." })
             add.billing.pincode = objAddress.billing.pincode
+
           }
         }
         newObj['address'] = add
+
       } else {
         return res.status(400).send({ status: true, msg: "Please Provide The Address" })
       }
+
     }
+
     if (files && files.length > 0) {
       let url = await uploadFile(files[0])
       data['profileImage'] = url
