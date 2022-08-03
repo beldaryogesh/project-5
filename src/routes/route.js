@@ -21,13 +21,14 @@ router.get( "/products/:productId",ProductController.getProductId);
 router.put('/products/:productId', ProductController.updateProduct)
 router.delete('/products/:productId', ProductController.deleteProductById)
 
-
-
 // .......................................... Cart APIs ...................................//
+
 router.post( "/users/:userId",middleware.Authentication,cartController.createCart);
-router.put('/users/:userId/cart', cartController.updatedCart)
+router.put('/users/:userId/cart',middleware.Authentication, cartController.updatedCart)
 router.get("/users/:userId/cart",middleware.Authentication,cartController.getCart)
 router.delete('/users/:userId/cart', middleware.Authentication,cartController.deleteCart)
 
 module.exports = router;
+
+
 
