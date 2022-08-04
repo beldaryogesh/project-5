@@ -52,8 +52,9 @@ let passRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}
 let numRegex = /^[0-9]*$/
 let priceReg = /^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$/
 let numsRegex = /^(0|1)$/
-
-module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex }
+let cancelRegex = /^(true|false)$/
+let statusRegex =  /^(pending|completed|cancelled)$/
+module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex, cancelRegex, statusRegex }
 
 
 
