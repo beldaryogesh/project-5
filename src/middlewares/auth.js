@@ -14,13 +14,13 @@ const Authentication = async function (req, res, next) {
 
     let decodedtoken = jwt.verify(token, "project5")
     if (!decodedtoken) {
-      return res.status(401).send({ status: false, msg: "invalid token" })
+      return res.status(401).send({ status: false, message: "invalid token" })
     }
     req.userId = decodedtoken.userId
     next()
   }
   catch (err) {
-    return res.status(500).send({ status: false, msg: err.message })
+    return res.status(500).send({ status: false, message: err.message })
   }
 }
 

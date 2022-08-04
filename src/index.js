@@ -11,7 +11,7 @@ app.use(multer().any());
 
 mongoose
   .connect(
-    "mongodb+srv://yogesh_beldar:Oh9CU4nZCayFGTeC@cluster0.zveoo.mongodb.net/project5",
+    "mongodb+srv://yogesh_beldar:Oh9CU4nZCayFGTeC@cluster0.zveoo.mongodb.net/project5 ",
     { useNewUrlParser: true }
   )
   .then(() => console.log("MongoDb is connected"))

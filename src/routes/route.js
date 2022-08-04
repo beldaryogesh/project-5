@@ -5,6 +5,7 @@ const validation = require("../validator/validation");
 const middleware = require("../middlewares/auth");
 const ProductController = require("../controllers/productController")
 const cartController = require("../controllers/cartController")
+const orderController = require("../controllers/orderController")
 
 // .......................................... User APIs ...................................//
 
@@ -28,6 +29,10 @@ router.put('/users/:userId/cart',middleware.Authentication, cartController.updat
 router.get("/users/:userId/cart",middleware.Authentication,cartController.getCart)
 router.delete('/users/:userId/cart', middleware.Authentication,cartController.deleteCart)
 
+
+
+router.post( "/users/:userId/orders",middleware.Authentication,orderController.createOrder);
+router.put('/users/:userId/orders',middleware.Authentication, orderController.updateOrder)
 module.exports = router;
 
 
