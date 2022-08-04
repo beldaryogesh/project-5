@@ -103,7 +103,7 @@ const getProduct = async function (req, res) {
                 for (let ele of uniqueSizes) {
                     if (enumArr.indexOf(ele) == -1) { return res.status(400).send({ status: false, message: `'${ele}' is not a valid size, only these sizes are available [S, XS, M, X, L, XXL, XL]` }) }
                 }
-                
+
                 filter["availableSizes"] = { $in: uniqueSizes }
             }
             else return res.status(400).send({ status: false, message: "size should be of type Array" })
@@ -160,131 +160,131 @@ const updateProduct = async function (req, res) {
         if (!isValidObjectId(productId)) {
             return res.status(400).send({ status: false, msg: "please provide valid productId" })
         }
-        let productData = await productModel.findById({_id:productId})
-        if(!productData)
-        return res.status(404).send({status: false, message: "product is not found in the DATABASE."})
-        if(productData.isDeleted == true)
-        return res.status(400).send({ status: false, msg: "Product is already deleted." })
+        let productData = await productModel.findById({ _id: productId })
+        if (!productData)
+            return res.status(404).send({ status: false, message: "product is not found in the DATABASE." })
+        if (productData.isDeleted == true)
+            return res.status(400).send({ status: false, msg: "Product is already deleted." })
         if (!isValidRequestBody(data)) {
             return res.status(400).send({ status: false, message: "Please provide data for update" });
-          }
-          let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
+        }
+        let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
 
-          let bodyFromReq = JSON.parse(JSON.stringify(data));
-          let newObj = {}
-          
-          if (bodyFromReq.hasOwnProperty("title")){
-          if (!isValid(title)) { return res.status(400).send({ status: false, msg: "Provide the title" }) }
-          if (!nameRegex.test(title))
-          return res.status(400).send({ status: false, message: "title should contain alphabets only." })
-          const titleData = await productModel.findOne({ title: title })
-          if (titleData) return res.status(400).send({ status: false, msg: `${title} is already present` })
-          }
-          newObj["title"] = title
-  
-          if (bodyFromReq.hasOwnProperty("description"))
-              if (!isValid(description)) {
-                  return res.status(400).send({ status: false, msg: "please enter the description" })
-              }
-          newObj["description"] = description
-  
-          if (bodyFromReq.hasOwnProperty("price")) {
-              if (!isValid(price)) {
-                  return res.status(400).send({ status: false, msg: "please enter the price" })
-              }
-              if (!numRegex.test(price)) {
-                  return res.status(400).send({ status: false, msg: "please provide numerical price" })
-              }
-              if (price <= 0) {
-                  return res.status(400).send({ status: false, msg: "please should not be zero" })
-              }
-              newObj["price"] = price
-          }
-  
-          if (bodyFromReq.hasOwnProperty("currencyId")) {
-              if (!isValid(currencyId)) {
-                  return res.status(400).send({ status: false, msg: "please provide currencyId" })
-              }
-              if (currencyId != "INR") {
-                  return res.status(400).send({ status: false, msg: "please provide valid currencyId" })
-              }
-              newObj["currencyId"] = currencyId
-          }
-          if (bodyFromReq.hasOwnProperty("currencyFormat")) {
-              if (!currencyFormat) {
-                  return res.status(400).send({ status: false, msg: "please provide currencyFormet" })
-              }
-              if (currencyFormat !== "₹") {
-                  return res.status(400).send({ status: false, msg: 'currencyFormat should be "₹" ' })
-              }
-              newObj["currencyFormat"] = currencyFormat
-          }
-  
-          //check if isFreeShipping is present or not
-  
-          if (data.isFreeShipping || data.isFreeShipping === "") {
-              if (!isValid(data.isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping cant be empty" })
-              if (!data.isFreeShipping.toLowerCase().match(/^(true|false|True|False|TRUE|FALSE)$/))
-                  return res.status(400).send({
-                      status: false,
-                      message: "Please provide isFreeShipping true/false",
-                  })
-  
-              newObj["isFreeShipping"] = isFreeShipping
-          }
-  
-          if (style) {
-              if (!isValid(style)) {
-                  return res.status(400).send({ status: false, msg: "Provide the style " })
-              }
-              newObj["style"] = style
-          }
-          if (installments) {
-              let bodyFromReq = JSON.parse(JSON.stringify(data));
-              if (bodyFromReq.hasOwnProperty("installments"))
-                  if (!isValid(installments)) return res.status(400).send({ status: false, Message: "Please provide installments" })
-  
-              if (!numRegex.test(installments)) {
-                  return res.status(400).send({ status: false, msg: "please provide installement only numercial value" })
-              }
-              newObj["installements"] = installments
-          }
-  
-          if (availableSizes) {
-              let size = availableSizes.split(",")
-  
-              if (!Array.isArray(size)) return res.status(400).send({ status: false, msg: "availableSizes should be array of strings" })
-  
-              let Size = ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']
-              const subtrim = size.map(element => {
-                  return element.trim()
-  
-              })
-              for (const element of subtrim) {
-                  if (Size.includes(element) === false) return res.status(400).send({ status: false, msg: 'Sizes should be in ["S", "XS", "M", "X", "L", "XXL", "XL"]' })
-  
-              }
-  
-              // newObj['availableSizes'] = {availableSizes}
-          }
-          let uploadedFileURL
-          if (files) {
-              if (files && files.length > 0) {
-                  let url = await uploadFile(files[0])
-                  data['profileImage'] = url
-              }
-              newObj['productImage'] = uploadedFileURL
-          }
-          //updation part
-          const updateProduct = await productModel.findByIdAndUpdate({ _id: productId }, { $set: newObj, $push: { availableSizes: availableSizes } }, { new: true })
-          return res.status(200).send({ status: true, "message": "Product updated", data: updateProduct })
-      }
-      catch (error) {
-  
-          return res.status(500).send({ status: false, err: error.message })
-      }
-  }
-        
+        let bodyFromReq = JSON.parse(JSON.stringify(data));
+        let newObj = {}
+
+        if (bodyFromReq.hasOwnProperty("title")) {
+            if (!isValid(title)) { return res.status(400).send({ status: false, msg: "Provide the title" }) }
+            if (!nameRegex.test(title))
+                return res.status(400).send({ status: false, message: "title should contain alphabets only." })
+            const titleData = await productModel.findOne({ title: title })
+            if (titleData) return res.status(400).send({ status: false, msg: `${title} is already present` })
+        }
+        newObj["title"] = title
+
+        if (bodyFromReq.hasOwnProperty("description"))
+            if (!isValid(description)) {
+                return res.status(400).send({ status: false, msg: "please enter the description" })
+            }
+        newObj["description"] = description
+
+        if (bodyFromReq.hasOwnProperty("price")) {
+            if (!isValid(price)) {
+                return res.status(400).send({ status: false, msg: "please enter the price" })
+            }
+            if (!numRegex.test(price)) {
+                return res.status(400).send({ status: false, msg: "please provide numerical price" })
+            }
+            if (price <= 0) {
+                return res.status(400).send({ status: false, msg: "please should not be zero" })
+            }
+            newObj["price"] = price
+        }
+
+        if (bodyFromReq.hasOwnProperty("currencyId")) {
+            if (!isValid(currencyId)) {
+                return res.status(400).send({ status: false, msg: "please provide currencyId" })
+            }
+            if (currencyId != "INR") {
+                return res.status(400).send({ status: false, msg: "please provide valid currencyId" })
+            }
+            newObj["currencyId"] = currencyId
+        }
+        if (bodyFromReq.hasOwnProperty("currencyFormat")) {
+            if (!currencyFormat) {
+                return res.status(400).send({ status: false, msg: "please provide currencyFormet" })
+            }
+            if (currencyFormat !== "₹") {
+                return res.status(400).send({ status: false, msg: 'currencyFormat should be "₹" ' })
+            }
+            newObj["currencyFormat"] = currencyFormat
+        }
+
+        //check if isFreeShipping is present or not
+
+        if (data.isFreeShipping || data.isFreeShipping === "") {
+            if (!isValid(data.isFreeShipping)) return res.status(400).send({ status: false, message: "isFreeShipping cant be empty" })
+            if (!data.isFreeShipping.toLowerCase().match(/^(true|false|True|False|TRUE|FALSE)$/))
+                return res.status(400).send({
+                    status: false,
+                    message: "Please provide isFreeShipping true/false",
+                })
+
+            newObj["isFreeShipping"] = isFreeShipping
+        }
+
+        if (style) {
+            if (!isValid(style)) {
+                return res.status(400).send({ status: false, msg: "Provide the style " })
+            }
+            newObj["style"] = style
+        }
+        if (installments) {
+            let bodyFromReq = JSON.parse(JSON.stringify(data));
+            if (bodyFromReq.hasOwnProperty("installments"))
+                if (!isValid(installments)) return res.status(400).send({ status: false, Message: "Please provide installments" })
+
+            if (!numRegex.test(installments)) {
+                return res.status(400).send({ status: false, msg: "please provide installement only numercial value" })
+            }
+            newObj["installements"] = installments
+        }
+
+        if (availableSizes) {
+            let size = availableSizes.split(",")
+
+            if (!Array.isArray(size)) return res.status(400).send({ status: false, msg: "availableSizes should be array of strings" })
+
+            let Size = ['S', 'XS', 'M', 'X', 'L', 'XXL', 'XL']
+            const subtrim = size.map(element => {
+                return element.trim()
+
+            })
+            for (const element of subtrim) {
+                if (Size.includes(element) === false) return res.status(400).send({ status: false, msg: 'Sizes should be in ["S", "XS", "M", "X", "L", "XXL", "XL"]' })
+
+            }
+
+            // newObj['availableSizes'] = {availableSizes}
+        }
+        let uploadedFileURL
+        if (files) {
+            if (files && files.length > 0) {
+                let url = await uploadFile(files[0])
+                data['profileImage'] = url
+            }
+            newObj['productImage'] = uploadedFileURL
+        }
+        //updation part
+        const updateProduct = await productModel.findByIdAndUpdate({ _id: productId }, { $set: newObj, $push: { availableSizes: availableSizes } }, { new: true })
+        return res.status(200).send({ status: true, "message": "Product updated", data: updateProduct })
+    }
+    catch (error) {
+
+        return res.status(500).send({ status: false, err: error.message })
+    }
+}
+
 
 // **********************************************DELETE PRODUCT**********************************************
 

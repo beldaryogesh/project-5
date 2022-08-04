@@ -11,41 +11,39 @@ const { uploadFile, isValidFiles, isValid, isValidRequestBody, nameRegex, emailR
 const registerUser = async (req, res) => {
   try {
     let data = req.body
-    if (Object.keys(data).length === 0) return res.status(400).send({ status: false, message: "Provide the data in body." })
-
+    if (Object.keys(data).length === 0)    //--> check body is MT 
+    return res.status(400).send({ status: false, message: "Provide the data in body." })
     let { fname, lname, email, phone, password, address } = data
-
-
-
     const files = req.files
-    if (!isValidFiles(files)) return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
-    if (!isValid(fname))
+    if (!isValidFiles(files))   // --> files should be provided in the body
+     return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
+    if (!isValid(fname))   // --> name should be provided in the body
       return res.status(400).send({ status: false, message: "Please enter the user name." })
-    if (!nameRegex.test(fname))
+    if (!nameRegex.test(fname))    // --> name should be provided in right format
       return res.status(400).send({ status: false, message: "fname should contain alphabets only." })
-    if (!isValid(lname))
+    if (!isValid(lname))   // --> lname should be provided in the body
       return res.status(400).send({ status: false, message: "Please enter the user last name." })
-    if (!nameRegex.test(lname))
+    if (!nameRegex.test(lname)) // --> lname should be provided in right format
       return res.status(400).send({ status: false, message: "lname should contain alphabets only." })
-    if (!isValid(email))
+    if (!isValid(email))    // --> email should be provided in the body
       return res.status(400).send({ status: false, message: "Please enter the email." })
-    if (!emailRegex.test(email))
+    if (!emailRegex.test(email))    // --> email should be provided in right format
       return res.status(400).send({ status: false, message: "Please enter a valid emailId." })
-    let getEmail = await userModel.findOne({ email: email });
-    if (getEmail) {
+    let getEmail = await userModel.findOne({ email: email });  // --> to check if provided email is already present in the database
+    if (getEmail) {    // --> if that email is already provided in the database
       return res.status(400).send({ status: false, message: "Email is already in use, please enter a new one." });
     }
-    if (!isValid(phone))
+    if (!isValid(phone))    // --> phone number should be provided in the body
       return res.status(400).send({ status: false, message: "Please enter the phone number." })
-    if (!phoneRegex.test(phone))
+    if (!phoneRegex.test(phone))   // --> phone number should be provided in right format
       return res.status(400).send({ status: false, message: "Enter the phone number in valid Indian format." })
-    let getPhone = await userModel.findOne({ phone: phone });
-    if (getPhone) {
+    let getPhone = await userModel.findOne({ phone: phone });    // --> to check if provided phone number is already present in the database
+    if (getPhone) {    // --> if that phone number is already provided in the database
       return res.status(400).send({ status: false, message: "Phone number is already in use, please enter a new one." });
     }
-    if (!isValid(password))
+    if (!isValid(password))     // --> password should be provided in the body
       return res.status(400).send({ status: false, message: "Please enter the password." })
-    if (!passRegex.test(password))
+    if (!passRegex.test(password))    // --> password should be provided in right format
       return res.status(400).send({ status: false, message: "Password length should be alphanumeric with 8-15 characters, should contain at least one lowercase, one uppercase and one special character." })
     const saltRounds = 10;
     const encryptedPassword = await bcrypt.hash(password, saltRounds)
@@ -54,12 +52,13 @@ const registerUser = async (req, res) => {
     if (address) {
       let objAddress = JSON.parse(address);
       if (objAddress.shipping) {
-        if (!isValid(objAddress.shipping.street)) { return res.status(400).send({ status: false, Message: "Please provide street and street name in shipping address", }) }
-        if (!isValid(objAddress.shipping.city))
+        if (!isValid(objAddress.shipping.street))  // --> street should be provided in the body
+         { return res.status(400).send({ status: false, Message: "Please provide street and street name in shipping address", }) }
+        if (!isValid(objAddress.shipping.city))  // --> city should be provided in the body
           return res.status(400).send({ status: false, Message: "Please provide city name in shipping address", });
-        if (!nameRegex.test(objAddress.shipping.city))
+        if (!nameRegex.test(objAddress.shipping.city))   // --> city should be provided in right format
           return res.status(400).send({ status: false, message: "city name should contain alphabets only(shipping)." })
-        if (!isValid(objAddress.shipping.pincode))
+        if (!isValid(objAddress.shipping.pincode))   // --> pincode should be provided in the body
           return res.status(400).send({ status: false, Message: "Please provide pincode in shipping address", });
         let pinValidated = pinValidator.validate(objAddress.shipping.pincode)
         if (!pinValidated) return res.status(400).send({ status: false, message: "Please enter a valid pincode in shipping." })

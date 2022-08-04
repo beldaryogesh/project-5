@@ -54,9 +54,7 @@ let priceReg = /^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)$/
 let numsRegex = /^(0|1)$/
 let cancelRegex = /^(true|false)$/
 let statusRegex =  /^(pending|completed|cancelled)$/
-
-module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, 
-  nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex ,cancelRegex,statusRegex}
+module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex, cancelRegex, statusRegex }
 
 
 
