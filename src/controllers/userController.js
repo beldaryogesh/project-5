@@ -191,6 +191,7 @@ const updateUserProfile = async function (req, res) {
     let bodyFromReq = JSON.parse(JSON.stringify(data));
     if (bodyFromReq.hasOwnProperty("profileImage"))
       if (!isValidFiles(profileImage)) return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
+      newObj["profileImage"] = profileImage
     if (bodyFromReq.hasOwnProperty("fname")) {
       if (!isValid(fname)) { return res.status(400).send({ status: false, msg: "Provide the First Name " }) }
       if (!nameRegex.test(fname))
