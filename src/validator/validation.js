@@ -45,6 +45,10 @@ const isValid = function (value) {
     if (typeof value === 'string' && value.trim().length === 0) return false
     return true;
 }
+const isValidImg = (img) => {
+  const reg = /image\/png|image\/jpeg|image\/jpg/;
+  return reg.test(img)
+}
 
 let nameRegex = /^[.a-zA-Z\s]+$/
 let emailRegex = /^[a-z]{1}[a-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/
@@ -56,4 +60,4 @@ let numsRegex = /^(0|1)$/
 let cancelRegex = /^(true|false)$/
 let statusRegex =  /^(pending|completed|cancelled)$/
 
-module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody, nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex, cancelRegex, statusRegex }
+module.exports={uploadFile, isValidFiles, isValid,isValidRequestBody,isValidImg, nameRegex,emailRegex, phoneRegex, passRegex, numRegex, priceReg,numsRegex, cancelRegex, statusRegex }

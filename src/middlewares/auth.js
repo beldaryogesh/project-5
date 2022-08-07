@@ -10,15 +10,20 @@ const Authentication = async function (req, res, next) {
     let tokenArray = tokenWithBearer.split(" ");
 
     let token = tokenArray[1];
+    jwt.verify(token, 'project5', (error, response) => {
+      if (error) {
+        const msg =
+          error.message === "jwt expired"
+            ? "Token is expired"
+            : "Token is invalid";
+        return res.status(401).send({ status: false, msg });
+      }
+      req.userId  = response.userId;
+      next();
+    });
 
-
-    let decodedtoken = jwt.verify(token, "project5")
-    if (!decodedtoken) {
-      return res.status(401).send({ status: false, message: "invalid token" })
-    }
-    req.userId = decodedtoken.userId
-    next()
-  }
+    
+}
   catch (err) {
     return res.status(500).send({ status: false, message: err.message })
   }

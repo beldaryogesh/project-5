@@ -11,7 +11,7 @@ const orderController = require("../controllers/orderController")
 router.post( "/register",userController.registerUser);
 router.post('/login', userController.loginUser)
 router.get('/user/:userId',middleware.Authentication, userController.getUserById)
-router.put('/user/:userId',middleware.Authentication, userController.updateUserProfile)
+router.put('/user/:userId',middleware.Authentication,userController.updateUserProfile)
 
 // .......................................... Product APIs ...................................//
 
