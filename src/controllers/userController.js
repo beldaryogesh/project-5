@@ -210,7 +210,6 @@ const updateUserProfile = async function (req, res) {
   try {
     let userId = req.params.userId;
     let data = req.body
-    let files = req.files
     let { fname, lname, email, phone, password, address } = data
 
     if (!isValidRequestBody(data)) {   //--> check body is empty
@@ -345,10 +344,14 @@ const updateUserProfile = async function (req, res) {
       }
     }
     //--------------------------profile Image----------------------------//
-    if(files!==null){
+    let files = req.files;
+    
+    if(files!==undefined){
+      if (bodyFromReq.hasOwnProperty("files")) {
     if (!isValidFiles(files))   // --> files should be provided in the body
     return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
     }
+  
     if (files) {
       if (files && files.length > 0) {
         if (!isValidImg(files[0].mimetype)) {
@@ -358,7 +361,7 @@ const updateUserProfile = async function (req, res) {
           });
         }
         let newurl = await uploadFile(files[0]);
-        data["profileImage"] = newurl;
+        newObj["profileImage"] = newurl;
       }
     } else {
       return res
@@ -368,6 +371,7 @@ const updateUserProfile = async function (req, res) {
           message: "Provide The Profile Image as u Have selected",
         });
     }
+  }
     const updateData = await userModel.findByIdAndUpdate({ _id: userId }, { $set: newObj }, { new: true })  //---> update data
     return res.status(201).send({ status: true, message: "user profile update", data: updateData });
   } catch (err) {

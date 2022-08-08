@@ -121,6 +121,9 @@ const updateOrder = async function (req, res) {
             return res.status(400).send({ status: false, message: "Order not found for this user." })
         }
         if (orderFind.cancellable == true) {
+            if(status!==undefined){
+                return res.status(400).send({ status: false, message: "please provide status"})
+            }
             if (orderFind.status == "pending") {
                 const updateStatus = await orderModel.findOneAndUpdate({ _id: orderId }, { status: status }, { new: true }).select({isDeleted:0,__v:0});
                 if (!updateStatus) {
