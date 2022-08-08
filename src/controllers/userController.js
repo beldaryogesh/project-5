@@ -121,13 +121,6 @@ const registerUser = async (req, res) => {
         let newurl = await uploadFile(files[0]);
         data["profileImage"] = newurl;
       }
-
-    // if (files && files.length > 0) {
-    //   let url = await uploadFile(files[0]);
-    //   data["profileImage"] = url;
-    // } else {
-    //   return res.status(400).send({ status: false, msg: "Please Provide ProfileImage" });
-    // }
     const createUser = await userModel.create(data)   //--> create data
     return res.status(201).send({ status: true, message: `User registered successfully`, data: createUser, })
   } catch (error) {
@@ -234,12 +227,8 @@ const updateUserProfile = async function (req, res) {
     if (userId != req.userId) {   //--> check userId authorization
       return res.status(403).send({ status: false, message: "unauthorized access!" });
     }
-
-
     let newObj = {}
     let bodyFromReq = JSON.parse(JSON.stringify(data));
-    
-
     //--------------------------fname validation----------------------------//
 
     if (bodyFromReq.hasOwnProperty("fname")) {
@@ -251,16 +240,13 @@ const updateUserProfile = async function (req, res) {
       newObj["fname"] = fname
     }
     //--------------------------lname validation----------------------------//
-
     if (bodyFromReq.hasOwnProperty("lname")) {   // --> lname should be provided in the body
       if (!isValid(lname)) { return res.status(400).send({ status: false, msg: "Provide the last Name " }) }
       if (!nameRegex.test(lname))  // --> lname should be provided in right format
         return res.status(400).send({ status: false, message: "name should contain alphabets only." })
       newObj["lname"] = lname
     }
-
     //--------------------------email validation----------------------------//
-
     if (bodyFromReq.hasOwnProperty("email")) {
       if (!isValid(email)) {  // --> email should be provided in the body
         return res.status(400).send({ status: false, msg: "please Provide the email " })
@@ -273,9 +259,7 @@ const updateUserProfile = async function (req, res) {
       }
       newObj["email"] = email
     }
-
     //--------------------------phone validation----------------------------//
-
     if (bodyFromReq.hasOwnProperty("phone")) {
       if (!isValid(phone))   // --> phone should be provided in the body
         return res.status(400).send({ status: false, message: "Please enter the phone number." })
@@ -331,6 +315,7 @@ const updateUserProfile = async function (req, res) {
         }
       }
 
+
       //--------------------------address validation (billing)----------------------------//
 
       if (address.billing) {
@@ -359,12 +344,11 @@ const updateUserProfile = async function (req, res) {
         }
       }
     }
-
     //--------------------------profile Image----------------------------//
-    // if((files)){
-    // if (!isValidFiles(files))   // --> files should be provided in the body
-    // return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
-    // }
+    if(files!==null){
+    if (!isValidFiles(files))   // --> files should be provided in the body
+    return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
+    }
     if (files) {
       if (files && files.length > 0) {
         if (!isValidImg(files[0].mimetype)) {
@@ -391,6 +375,16 @@ const updateUserProfile = async function (req, res) {
   }
 }
 module.exports = { registerUser, loginUser, getUserById, updateUserProfile }  
+
+   
+    
+
+
+
+
+
+
+
 
 
 
