@@ -14,11 +14,12 @@ const registerUser = async (req, res) => {
     let files = req.files
     
     //--------------------------files validation----------------------------//
-    // if (!isValidFiles(files))   // --> files should be provided in the body
-    // return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
+    if (!isValidFiles(files))   // --> files should be provided in the body
+    return res.status(400).send({ status: false, Message: "Please provide user's profile picture", })
     
     if (!isValidRequestBody(data))    //--> check body is empty
       return res.status(400).send({ status: false, message: "Provide the data in body." })
+      
     let { fname, lname, email, phone, password, address } = data
     //--------------------------fname validation----------------------------//
 
@@ -112,7 +113,7 @@ const registerUser = async (req, res) => {
           message: "Please Provide The Profile Image",
         })}
       if (files && files.length > 0) {
-        if (!isValidImg(files[0].mimetype)) {
+        if (!isValidImg(files[0].mimetype)) {    
           return res.status(400).send({
             status: false,
             message: "Image Should be of JPEG/ JPG/ PNG",
@@ -174,7 +175,7 @@ const loginUser = async function (req, res) {
     }
     res.setHeader('Authorization', 'Bearer ' + token);
 
-    return res.status(201).send({ status: true, msg: "User LoggedIn Succesfully", data: obj })
+    return res.status(200).send({ status: true, msg: "User LoggedIn Succesfully", data: obj })
 
   }
   catch (err) {
@@ -202,9 +203,6 @@ const getUserById = async (req, res) => {
     return res.status(500).send({ status: false, msg: err.name })
   }
 }
-    
-    
-
 //********************************************UPDATEUSER API******************************************************************* */
 const updateUserProfile = async function (req, res) {
   try {
@@ -217,7 +215,7 @@ const updateUserProfile = async function (req, res) {
     }
     if (!isValidObjectId(userId)) {      //--> check userId validation
       return res.status(400).send({ status: false, msg: "Invalid User Id" })
-    }
+    } 
     
     const isUserPresent = await userModel.findById(userId)
     if (!isUserPresent) {
@@ -373,26 +371,9 @@ const updateUserProfile = async function (req, res) {
     }
   }
     const updateData = await userModel.findByIdAndUpdate({ _id: userId }, { $set: newObj }, { new: true })  //---> update data
-    return res.status(201).send({ status: true, message: "user profile update", data: updateData });
+    return res.status(200).send({ status: true, message: "user profile update", data: updateData });
   } catch (err) {
     return res.status(500).send({ status: false, msg: err.message })
   }
 }
 module.exports = { registerUser, loginUser, getUserById, updateUserProfile }  
-
-   
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-

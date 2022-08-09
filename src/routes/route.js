@@ -10,8 +10,8 @@ const orderController = require("../controllers/orderController")
 
 router.post( "/register",userController.registerUser);
 router.post('/login', userController.loginUser)
-router.get('/user/:userId',middleware.Authentication, userController.getUserById)
-router.put('/user/:userId',middleware.Authentication,userController.updateUserProfile)
+router.get('/user/:userId/profile',middleware.Authentication, userController.getUserById)
+router.put('/user/:userId/profile',middleware.Authentication,userController.updateUserProfile)
 
 // .......................................... Product APIs ...................................//
 
@@ -23,7 +23,7 @@ router.delete('/products/:productId', ProductController.deleteProductById)
 
 // .......................................... Cart APIs ...................................//
 
-router.post( "/users/:userId",middleware.Authentication,cartController.createCart);
+router.post( "/users/:userId/cart",middleware.Authentication,cartController.createCart);
 router.put('/users/:userId/cart',middleware.Authentication, cartController.updatedCart)
 router.get("/users/:userId/cart",middleware.Authentication,cartController.getCart)
 router.delete('/users/:userId/cart', middleware.Authentication,cartController.deleteCart)

@@ -20,7 +20,7 @@ const orderSchema = new mongoose.Schema({
             trim: true,
             min: 1
         },
-        _id: false
+      
     }],
     totalPrice: {
         type: Number,

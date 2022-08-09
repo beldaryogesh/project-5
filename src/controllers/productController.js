@@ -2,7 +2,7 @@ const productModel = require("../models/productModel")
 const mongoose = require("mongoose")
 const { isValidObjectId } = require('mongoose')
 
-const { uploadFile, isValid, isValidFiles, isValidRequestBody, nameRegex, numRegex, priceReg } = require("../validator/validation")
+const { uploadFile, isValid, isValidFiles, isValidRequestBody, nameRegex, numRegex } = require("../validator/validation")
 
 
 // *************************************************CREATE PRODUCT*******************************************
@@ -36,7 +36,7 @@ const createProduct = async function (req, res) {
             if (!isValid(price)) {
                 return res.status(400).send({ status: false, msg: "please enter price" })
             }
-            if (!numRegex.test(price)) {
+            if (!Number(price)) {
                 return res.status(400).send({ status: false, msg: "please provide numerical price" })
             }
         // -------------------------------currencyId validation----------------------------------//
@@ -65,6 +65,7 @@ const createProduct = async function (req, res) {
             return res.status(400).send({ status: false, msg: "please enter size of product" })
         }
         sizeArr = availableSizes.replace(/\s+/g, "").split(",")
+
         let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
         let flag
         for (let i = 0; i < sizeArr.length; i++) {
@@ -119,7 +120,8 @@ const getProduct = async function (req, res) {
             }
         }
         let title = name
-        if (title) obj.title = { $regex: name, $options: "i" }
+        if (title)
+         obj.title = { $regex: name, $options: "i" }
         if (name !== undefined) {
             if (!isValid(name)) {
                 return res.status(400).send({ status: false, message: "please enter proper name" })
@@ -244,7 +246,7 @@ const updateProduct = async function (req, res) {
             if (!isValid(price)) {
                 return res.status(400).send({ status: false, msg: "please enter the price" })
             }
-            if (!numRegex.test(price)) {
+            if (!Number(price)) {
                 return res.status(400).send({ status: false, msg: "please provide numerical price" })
             }
             if (price <= 0) {
@@ -305,7 +307,7 @@ const updateProduct = async function (req, res) {
             const subtrim = size.map(element => {
                 return element.trim()
             })
-            for (const element of subtrim) {
+            for (const element of subtrim) {   //for of loop
                 if (Size.includes(element) === false) return res.status(400).send({ status: false, msg: 'Sizes should be in ["S", "XS", "M", "X", "L", "XXL", "XL"]' })
             }
         }
@@ -320,7 +322,7 @@ const updateProduct = async function (req, res) {
 
         //-----------------------------------------updation part-------------------------------------------//
         const updateProduct = await productModel.findByIdAndUpdate({ _id: productId }, { $set: newObj, $push: { availableSizes: availableSizes } }, { new: true })
-        return res.status(200).send({ status: true, "message": "Product updated", data: updateProduct })
+        return res.status(200).send({ status: true, message: "Product updated", data: updateProduct })
     }
     catch (error) {
         return res.status(500).send({ status: false, err: error.message })
@@ -345,41 +347,3 @@ const deleteProductById = async function (req, res) {
     }
 }
 module.exports = { createProduct, getProduct, getProductId, updateProduct, deleteProductById }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
